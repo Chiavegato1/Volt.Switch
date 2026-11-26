@@ -1,0 +1,1 @@
+// Recupera os pedidos que ainda precisam ser entregues.\nfunction pedidosParaEntrega() { return JSON.parse(localStorage.getItem("voltPedidos") || "[]").filter(pedido => pedido.status !== "Entregue"); }\n

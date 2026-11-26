@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisar produtos | Volt Switch</title>
+<link rel="stylesheet" href="../../css/base/base.css">
+<link rel="stylesheet" href="../../css/componentes/componentes.css">
+<link rel="stylesheet" href="../../css/paginas/paginas.css">
+</head>
+<body>
+<div class="cabecalho-fixo">
+<header class="header-principal">
+<div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div>
+<form class="form-busca" action="produtos.html" method="get"><input id="busca-topo" name="busca" type="search" placeholder="Buscar por produtos..."><button>Buscar</button></form>
+<div class="acoes-usuario"><a href="../autenticacao/autenticacao.html">Entre ou Cadastre-se</a><a class="link-carrinho" href="../carrinho/carrinho.html">Carrinho (0)</a></div>
+</header>
+<nav class="nav-categorias"><ul class="menu-principal">
+<li class="item-menu"><a class="destaque" href="../../index.html">⚡ INÍCIO</a></li>
+<li class="item-menu"><a href="produtos.html?categoria=Processadores">💻 HARDWARE ▾</a><ul class="submenu"><li><a href="produtos.html?categoria=Processadores">Processadores</a></li><li><a href="produtos.html?categoria=Placas de vídeo">Placas de vídeo</a></li><li><a href="produtos.html?categoria=SSDs">SSDs e HDs</a></li></ul></li>
+<li class="item-menu"><a href="produtos.html?categoria=Monitores">🖥️ MONITORES</a></li>
+</ul></nav></div>
+<main class="container">
+<section class="secao-produtos">
+<h2>🔎 Pesquisar produtos</h2>
+<div class="filtros-pesquisa">
+<input type="search" id="campo-pesquisa" placeholder="O que você está procurando?">
+<select id="filtro-categoria"><option value="">Todas as categorias</option><option>Processadores</option><option>Placas de vídeo</option><option>SSDs</option><option>Monitores</option></select>
+<select id="filtro-ordem"><option value="padrao">Ordenar por</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="nome">Nome</option></select>
+</div>
+<p id="quantidade-resultados" class="texto-resultados"></p>
+<div class="lista-produtos" id="resultados-produtos"></div>
+</section>
+</main>
+<footer class="rodape"><div class="copyright">© 2026 Volt Switch Eletrônicos. Projeto Acadêmico.</div></footer>
+<script src="../../js/services/services.js"></script>
+<script src="../../js/componentes/componentes.js"></script>
+</body></html>

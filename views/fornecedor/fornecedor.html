@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Painel da loja | Volt Switch</title><link rel="stylesheet" href="../../css/base/base.css"><link rel="stylesheet" href="../../css/componentes/componentes.css"><link rel="stylesheet" href="../../css/paginas/paginas.css"><link rel="stylesheet" href="../../css/fornecedor/fornecedor.css"></head><body><header class="header-principal"><div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div><div class="acoes-usuario"><a href="../autenticacao/autenticacao.html">Trocar conta</a><a href="../../index.html">Voltar à loja</a></div></header>
+<main class="painel-conteudo"><h1>Painel da loja / fornecedor</h1><p>Área de demonstração para acompanhar os produtos e pedidos da loja.</p>
+<h2>Produtos disponíveis no catálogo</h2><div id="catalogo-loja"></div>
+<h2>Pedidos para separar</h2><div id="pedidos-loja"></div>
+</main><script src="../../js/services/services.js"></script><script>
+document.getElementById("catalogo-loja").innerHTML = "<ul>" + produtos.map(p => "<li>" + p.nome + " — " + formatarPreco(p.preco) + "</li>").join("") + "</ul>";
+const pedidosLoja = JSON.parse(localStorage.getItem("voltPedidos") || "[]");
+document.getElementById("pedidos-loja").innerHTML = pedidosLoja.length ? "<ul>" + pedidosLoja.map(p => "<li>Pedido " + p.numero + " — " + p.status + "</li>").join("") + "</ul>" : "<p>Nenhum pedido no momento.</p>";
+</script><script src="../../js/fornecedor/fornecedor.js"></script></body></html>

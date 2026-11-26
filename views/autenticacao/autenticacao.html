@@ -34,6 +34,15 @@
                     <input type="text" id="nome" name="nome" placeholder="Digite seu nome" autocomplete="name">
                 </div>
 
+                <div class="campo-autenticacao" id="campo-tipo" hidden>
+                    <label for="tipo">Tipo de conta</label>
+                    <select id="tipo" name="tipo">
+                        <option value="usuario">Cliente</option>
+                        <option value="loja">Loja / Fornecedor</option>
+                        <option value="entregador">Entregador</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
                 <div class="campo-autenticacao">
                     <label for="email">E-mail</label>
                     <input type="email" id="email" name="email" placeholder="voce@exemplo.com" required autocomplete="email">
@@ -44,7 +53,7 @@
                     <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required minlength="6" autocomplete="current-password">
                 </div>
 
-                <p id="mensagem-autenticacao" class="mensagem-autenticacao" role="status"></p>
+                <p class="aviso-academico">Demonstração acadêmica: os dados ficam somente neste navegador.</p>\n                <p id="mensagem-autenticacao" class="mensagem-autenticacao" role="status"></p>
                 <button type="submit" class="botao-autenticacao" id="botao-enviar">Entrar</button>
             </form>
 
