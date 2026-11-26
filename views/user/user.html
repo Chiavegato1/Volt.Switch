@@ -1,8 +1,32 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Minha conta | Volt Switch</title><link rel="stylesheet" href="../../css/base/base.css"><link rel="stylesheet" href="../../css/componentes/componentes.css"><link rel="stylesheet" href="../../css/paginas/paginas.css"><link rel="stylesheet" href="../../css/usuario/usuario.css"></head><body><header class="header-principal"><div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div><div class="acoes-usuario"><a href="../autenticacao/autenticacao.html">Trocar conta</a><a href="../../index.html">Voltar à loja</a></div></header>
-<main class="painel-conteudo"><h1>Minha conta</h1><div id="dados-cliente"></div><h2>Meus pedidos</h2><div id="meus-pedidos"></div></main>
-<script>
-const cliente = JSON.parse(localStorage.getItem("voltUsuario") || "null");
-document.getElementById("dados-cliente").innerHTML = cliente ? "<p>Olá, " + cliente.nome + "!</p><p>E-mail: " + cliente.email + "</p>" : "<p>Você ainda não entrou em uma conta. <a href='../autenticacao/autenticacao.html'>Entrar aqui</a>.</p>";
-const pedidosCliente = JSON.parse(localStorage.getItem("voltPedidos") || "[]");
-document.getElementById("meus-pedidos").innerHTML = pedidosCliente.length ? "<ul>" + pedidosCliente.map(p => "<li>Pedido " + p.numero + " — " + p.status + " — " + p.total + "</li>").join("") + "</ul>" : "<p>Você ainda não possui pedidos.</p>";
-</script><script src="../../js/usuario/usuario.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha conta | Volt Switch</title>
+    <link rel="stylesheet" href="../../css/base/base.css">
+    <link rel="stylesheet" href="../../css/componentes/componentes.css">
+    <link rel="stylesheet" href="../../css/paginas/paginas.css">
+    <link rel="stylesheet" href="../../css/usuario/usuario.css">
+</head>
+<body>
+    <header class="header-principal">
+        <div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div>
+        <div class="acoes-usuario"><a href="../../index.html">Voltar à loja</a></div>
+    </header>
+    <main class="painel-conteudo">
+        <h1>Minha conta</h1>
+        <p>Consulte seu perfil e acompanhe seus pedidos de demonstração.</p>
+        <div id="perfil-painel"></div>
+        <nav id="atalhos-painel" aria-label="Áreas disponíveis"></nav>
+        <button id="sair-conta" type="button" hidden>Sair da conta</button>
+        <p id="estado-painel" class="texto-resultados" role="status">Carregando painel…</p>
+        <div id="conteudo-painel" hidden>
+            <h2>Meus pedidos</h2>
+            <div id="pedidos-painel"></div>
+        </div>
+    </main>
+    <footer class="rodape"><div class="copyright">© 2026 Volt Switch Eletrônicos. Projeto Acadêmico.</div></footer>
+    <script type="module" src="../../js/usuario/conta.js"></script>
+</body>
+</html>
