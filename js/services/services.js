@@ -1,47 +1,60 @@
-// Dados dos produtos usados nas vitrines, pesquisa e páginas individuais.
-const produtos = [
-    { id: "processador", nome: "Processador AMD Ryzen 7 5700X3D 3.0GHz", categoria: "Processadores", preco: 1249.90, antigo: 1899.00, imagem: "../../img/produtos/Ryzen 7 5700X3D 3.0GHz.png", pagina: "processador.html", loja: "VOLT SWITCH", descricao: "Ótimo desempenho para jogos, com 8 núcleos e cache extra." },
-    { id: "placa", nome: "Placa de Vídeo RTX 4060 8GB GDDR6", categoria: "Placas de vídeo", preco: 1799.00, antigo: 2499.00, imagem: "../../img/produtos/geforce rtx 4060.jpg", pagina: "placa-de-video.html", loja: "VOLT SWITCH", descricao: "Gráficos de última geração com Ray Tracing e DLSS 3." },
-    { id: "ssd", nome: "SSD 1TB Kingston NVMe M.2 3500MB/s", categoria: "SSDs", preco: 389.90, antigo: 650.00, imagem: "../../img/produtos/SSD 1TB Kingston NVMe M.2 3500MBs.png", pagina: "memoria.html", loja: "VOLT SWITCH", descricao: "Armazenamento rápido para sistema, programas e jogos." },
-    { id: "monitor", nome: "Monitor Gamer Curved 24 180Hz 1ms", categoria: "Monitores", preco: 899.00, antigo: 1199.00, imagem: "../../img/produtos/Monitor Gamer Curved 24 180Hz 1ms.png", pagina: "monitor.html", loja: "VOLT SWITCH", descricao: "Tela curva de 24 polegadas com alta taxa de atualização." }
-];
+import { produtos } from "./catalogo.mjs";
 
-// Funções simples para guardar e recuperar informações no navegador.
-function lerDados(chave, valorInicial) {
-    const dados = localStorage.getItem(chave);
-    return dados ? JSON.parse(dados) : valorInicial;
-}
-
-function salvarDados(chave, dados) {
-    localStorage.setItem(chave, JSON.stringify(dados));
-}
-
-function adicionarCarrinho(id) {
-    let carrinho = lerDados("voltCarrinho", []);
-    let item = carrinho.find(produto => produto.id === id);
-
-    if (item) {
-        item.quantidade++;
-    } else {
-        carrinho.push({ id: id, quantidade: 1 });
+export function lerCarrinho() {
+    try {
+        const itens = JSON.parse(sessionStorage.getItem("voltCarrinho") || "[]");
+        if (!Array.isArray(itens)) return [];
+        return itens.filter(item => item && produtos.some(produto => produto.id === item.id) &&
+            Number.isInteger(item.quantidade) && item.quantidade >= 1 && item.quantidade <= 99);
+    } catch {
+        return [];
     }
+}
 
-    salvarDados("voltCarrinho", carrinho);
+export function salvarCarrinho(itens) {
+    sessionStorage.setItem("voltCarrinho", JSON.stringify(itens));
+    sessionStorage.removeItem("voltChavePedido");
     atualizarContadorCarrinho();
-    alert("Produto adicionado ao carrinho!");
 }
 
-function atualizarContadorCarrinho() {
-    const links = document.querySelectorAll(".link-carrinho");
-    let carrinho = lerDados("voltCarrinho", []);
-    let quantidade = 0;
-
-    carrinho.forEach(item => quantidade += item.quantidade);
-    links.forEach(link => link.textContent = "Carrinho (" + quantidade + ")");
+export function atualizarContadorCarrinho() {
+    const quantidade = lerCarrinho().reduce((total, item) => total + item.quantidade, 0);
+    document.querySelectorAll(".link-carrinho").forEach(link => link.textContent = `Carrinho (${quantidade})`);
 }
 
-function formatarPreco(valor) {
+window.adicionarCarrinho = function (id) {
+    const produto = produtos.find(produto => produto.id === id);
+    if (!produto) return;
+    const carrinho = lerCarrinho();
+    const item = carrinho.find(item => item.id === id);
+    if (item && item.quantidade >= 99) {
+        mostrarAviso("Limite de 99 unidades por produto.");
+        return;
+    }
+    if (item) item.quantidade++;
+    else carrinho.push({ id, quantidade: 1 });
+    salvarCarrinho(carrinho);
+    mostrarAviso("Produto adicionado ao carrinho.");
+};
+
+let tempoAviso;
+function mostrarAviso(texto) {
+    let aviso = document.getElementById("aviso-carrinho");
+    if (!aviso) {
+        aviso = document.createElement("div");
+        aviso.id = "aviso-carrinho";
+        aviso.className = "aviso-carrinho";
+        aviso.setAttribute("role", "status");
+        document.body.append(aviso);
+    }
+    aviso.hidden = false;
+    aviso.textContent = texto;
+    clearTimeout(tempoAviso);
+    tempoAviso = setTimeout(() => aviso.hidden = true, 3000);
+}
+
+export function formatarPreco(valor) {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-document.addEventListener("DOMContentLoaded", atualizarContadorCarrinho);
+atualizarContadorCarrinho();

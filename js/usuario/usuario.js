@@ -1,68 +1,81 @@
-// Alterna entre entrar e cadastrar uma conta de demonstração.
+import { acceptInvite, handleAuthCallback, login, signup } from "/vendor/identity.js";
+import { lerCarrinho } from "../services/services.js";
+import { redirecionarConta } from "../ultilitarios/ultilitarios.js";
+
 const botaoEntrar = document.getElementById("botao-entrar");
 const botaoCadastrar = document.getElementById("botao-cadastrar");
 const campoNome = document.getElementById("campo-nome");
 const campoTipo = document.getElementById("campo-tipo");
+const nome = document.getElementById("nome");
+const email = document.getElementById("email");
+const senha = document.getElementById("senha");
+const tipo = document.getElementById("tipo");
 const titulo = document.getElementById("titulo-autenticacao");
-const botaoEnviar = document.getElementById("botao-enviar");
-const formulario = document.getElementById("form-autenticacao");
+const enviar = document.getElementById("botao-enviar");
 const mensagem = document.getElementById("mensagem-autenticacao");
-const campoSenha = document.getElementById("senha");
-let modoCadastro = false;
+const formulario = document.getElementById("form-autenticacao");
+let modo = "entrar";
+let convite;
 
-function mostrarFormulario(cadastrar) {
-    modoCadastro = cadastrar;
-    campoNome.hidden = !cadastrar;
-    campoTipo.hidden = !cadastrar;
-    document.getElementById("nome").required = cadastrar;
-    campoSenha.autocomplete = cadastrar ? "new-password" : "current-password";
-    titulo.textContent = cadastrar ? "Crie sua conta" : "Entre na sua conta";
-    botaoEnviar.textContent = cadastrar ? "Criar conta" : "Entrar";
-    botaoEntrar.classList.toggle("ativa", !cadastrar);
-    botaoCadastrar.classList.toggle("ativa", cadastrar);
+function alternar(novoModo) {
+    modo = novoModo;
+    const cadastro = modo === "cadastro";
+    const convidado = modo === "convite";
+    campoNome.hidden = !cadastro;
+    campoTipo.hidden = !cadastro;
+    email.parentElement.hidden = convidado;
+    nome.required = cadastro;
+    email.required = !convidado;
+    senha.autocomplete = cadastro || convidado ? "new-password" : "current-password";
+    titulo.textContent = cadastro ? "Crie sua conta" : convidado ? "Aceite seu convite" : "Entre na sua conta";
+    enviar.textContent = cadastro ? "Criar conta" : convidado ? "Ativar conta" : "Entrar";
+    botaoEntrar.classList.toggle("ativa", modo === "entrar");
+    botaoCadastrar.classList.toggle("ativa", cadastro);
+    botaoEntrar.setAttribute("aria-pressed", String(modo === "entrar"));
+    botaoCadastrar.setAttribute("aria-pressed", String(cadastro));
     mensagem.textContent = "";
 }
-botaoEntrar.addEventListener("click", function () { mostrarFormulario(false); });
-botaoCadastrar.addEventListener("click", function () { mostrarFormulario(true); });
 
-formulario.addEventListener("submit", function (evento) {
+botaoEntrar.addEventListener("click", () => alternar("entrar"));
+botaoCadastrar.addEventListener("click", () => alternar("cadastro"));
+
+formulario.addEventListener("submit", async evento => {
     evento.preventDefault();
-    if (!formulario.checkValidity()) { formulario.reportValidity(); return; }
-
-    const email = document.getElementById("email").value.trim();
-    const senha = campoSenha.value;
-    let usuarios = JSON.parse(localStorage.getItem("voltUsuarios") || "[]");
-
-    if (modoCadastro) {
-        if (usuarios.some(usuario => usuario.email === email)) {
-            mensagem.textContent = "Este e-mail já possui cadastro.";
-            return;
+    if (enviar.disabled) return;
+    enviar.disabled = botaoEntrar.disabled = botaoCadastrar.disabled = true;
+    mensagem.textContent = "Aguarde…";
+    try {
+        if (modo === "convite") {
+            await redirecionarConta(await acceptInvite(convite, senha.value));
+        } else if (modo === "cadastro") {
+            if (!nome.value.trim()) {
+                mensagem.textContent = "Informe seu nome completo.";
+                nome.focus();
+                return;
+            }
+            const usuario = await signup(email.value.trim(), senha.value, { full_name: nome.value.trim(), perfil_solicitado: tipo.value });
+            senha.value = "";
+            if (usuario.emailVerified) await redirecionarConta(usuario);
+            else mensagem.textContent = "Confira seu e-mail para confirmar a conta antes de entrar.";
+        } else {
+            await redirecionarConta(await login(email.value.trim(), senha.value));
         }
-        const novoUsuario = {
-            nome: document.getElementById("nome").value,
-            email: email,
-            senha: senha,
-            tipo: document.getElementById("tipo").value
-        };
-        usuarios.push(novoUsuario);
-        localStorage.setItem("voltUsuarios", JSON.stringify(usuarios));
-        localStorage.setItem("voltUsuario", JSON.stringify(novoUsuario));
-        mensagem.textContent = "Cadastro realizado! Redirecionando...";
-        redirecionarUsuario(novoUsuario.tipo);
-    } else {
-        const usuario = usuarios.find(item => item.email === email && item.senha === senha);
-        if (!usuario) { mensagem.textContent = "E-mail ou senha não encontrados. Confira os dados ou crie uma conta."; return; }
-        localStorage.setItem("voltUsuario", JSON.stringify(usuario));
-        mensagem.textContent = "Login realizado!";
-        redirecionarUsuario(usuario.tipo);
+    } catch (erro) {
+        mensagem.textContent = erro.status === 429 ? "Muitas tentativas. Aguarde e tente novamente." :
+            modo === "entrar" ? "Não foi possível entrar. Confira o e-mail e a senha e confirme seu cadastro." :
+            "Não foi possível concluir. Confira os dados ou tente novamente mais tarde.";
+    } finally {
+        enviar.disabled = botaoEntrar.disabled = botaoCadastrar.disabled = false;
     }
 });
-function redirecionarUsuario(tipo) {
-    const destinos = {
-        usuario: "../user/user.html",
-        loja: "../fornecedor/fornecedor.html",
-        entregador: "../entregadores/entregadores.html",
-        admin: "../admin/admin.html"
-    };
-    setTimeout(function () { window.location.href = destinos[tipo] || "../user/user.html"; }, 700);
-}
+
+alternar(new URLSearchParams(location.search).get("modo") === "cadastro" ? "cadastro" : "entrar");
+handleAuthCallback().then(resultado => {
+    if (resultado?.type === "invite") {
+        convite = resultado.token;
+        alternar("convite");
+    } else if (resultado?.type === "confirmation") {
+        if (lerCarrinho().length) location.replace("/views/carrinho/carrinho.html");
+        else return redirecionarConta(resultado.user);
+    }
+}).catch(() => mensagem.textContent = "O link não está mais válido. Abra o link mais recente do seu e-mail.");
