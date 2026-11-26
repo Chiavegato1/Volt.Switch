@@ -1,42 +1,38 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Meu carrinho | Volt Switch</title>
-<link rel="stylesheet" href="../../css/base/base.css"><link rel="stylesheet" href="../../css/componentes/componentes.css"><link rel="stylesheet" href="../../css/paginas/paginas.css"></head><body>
-<div class="cabecalho-fixo"><header class="header-principal"><div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div><form class="form-busca" action="../produtos/produtos.html"><input name="busca" placeholder="Buscar produtos..."><button>Buscar</button></form><div class="acoes-usuario"><a href="../autenticacao/autenticacao.html">Minha conta</a><a class="link-carrinho" href="carrinho.html">Carrinho (0)</a></div></header><nav class="nav-categorias"><ul class="menu-principal"><li class="item-menu"><a class="destaque" href="../../index.html">⚡ CONTINUAR COMPRANDO</a></li></ul></nav></div>
-<main class="container">
-<section class="secao-produtos"><h2>🛒 Meu carrinho</h2><div id="itens-carrinho"></div>
-<div class="resumo-carrinho"><h3 id="total-carrinho">Total: R$ 0,00</h3><button class="btn-comprar" id="finalizar-compra">Finalizar compra</button></div>
-</section></main>
-<footer class="rodape"><div class="copyright">© 2026 Volt Switch Eletrônicos. Projeto Acadêmico.</div></footer>
-<script src="../../js/services/services.js"></script><script>
-function mostrarCarrinho() {
- const area = document.getElementById("itens-carrinho");
- const carrinho = lerDados("voltCarrinho", []);
- let total = 0;
- if (carrinho.length === 0) { area.innerHTML = "<p>Seu carrinho está vazio. Explore nossos produtos!</p>"; }
- else {
-  area.innerHTML = carrinho.map(item => {
-   const produto = produtos.find(p => p.id === item.id);
-   if (!produto) return "";
-   total += produto.preco * item.quantidade;
-   return `<div class="item-carrinho"><img src="${produto.imagem}" alt="${produto.nome}"><div class="dados-item"><h3>${produto.nome}</h3><p>${formatarPreco(produto.preco)} cada</p><label>Quantidade: <input type="number" min="1" value="${item.quantidade}" onchange="alterarQuantidade('${item.id}', this.value)"></label></div><button class="botao-remover" onclick="removerItem('${item.id}')">Remover</button></div>`;
-  }).join("");
- }
- document.getElementById("total-carrinho").textContent = "Total: " + formatarPreco(total);
-}
-function alterarQuantidade(id, quantidade) {
- let carrinho = lerDados("voltCarrinho", []);
- let item = carrinho.find(p => p.id === id);
- if (item) item.quantidade = Math.max(1, parseInt(quantidade) || 1);
- salvarDados("voltCarrinho", carrinho); mostrarCarrinho(); atualizarContadorCarrinho();
-}
-function removerItem(id) {
- let carrinho = lerDados("voltCarrinho", []).filter(item => item.id !== id);
- salvarDados("voltCarrinho", carrinho); mostrarCarrinho(); atualizarContadorCarrinho();
-}
-document.getElementById("finalizar-compra").addEventListener("click", function () {
- const carrinho = lerDados("voltCarrinho", []);
- if (!carrinho.length) { alert("Adicione produtos antes de finalizar."); return; }
- if (!lerDados("voltUsuario", null)) { alert("Entre ou crie uma conta para continuar."); window.location.href = "../autenticacao/autenticacao.html"; return; }
- window.location.href = "../confirmacao/confirmacao.html";
-});
-document.addEventListener("DOMContentLoaded", mostrarCarrinho);
-</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu carrinho | Volt Switch</title>
+    <link rel="stylesheet" href="../../css/base/base.css">
+    <link rel="stylesheet" href="../../css/componentes/componentes.css">
+    <link rel="stylesheet" href="../../css/paginas/paginas.css">
+</head>
+<body>
+    <div class="cabecalho-fixo">
+        <header class="header-principal">
+            <div class="logo"><a href="../../index.html">VOLT SWITCH <span>Eletrônicos</span></a></div>
+            <form class="form-busca" action="../produtos/produtos.html">
+                <input name="busca" type="search" aria-label="Buscar produtos" placeholder="Buscar produtos...">
+                <button>Buscar</button>
+            </form>
+            <div class="acoes-usuario"><a href="../user/user.html">Minha conta</a><a class="link-carrinho" href="carrinho.html">Carrinho (0)</a></div>
+        </header>
+        <nav class="nav-categorias"><ul class="menu-principal"><li class="item-menu"><a class="destaque" href="../produtos/produtos.html">Continuar comprando</a></li></ul></nav>
+    </div>
+    <main class="container">
+        <section class="secao-produtos">
+            <h1 class="titulo-secao">Meu carrinho</h1>
+            <div id="itens-carrinho"></div>
+            <div class="resumo-carrinho">
+                <h2 id="total-carrinho">Total: R$ 0,00</h2>
+                <button class="btn-comprar" id="finalizar-compra" disabled>Registrar pedido de teste</button>
+            </div>
+            <p class="texto-resultados">Compra de demonstração: não há pagamento ou envio real.</p>
+            <p id="estado-carrinho" role="status"></p>
+        </section>
+    </main>
+    <footer class="rodape"><div class="copyright">© 2026 Volt Switch Eletrônicos. Projeto Acadêmico.</div></footer>
+    <script type="module" src="../../js/usuario/carrinho.js"></script>
+</body>
+</html>
